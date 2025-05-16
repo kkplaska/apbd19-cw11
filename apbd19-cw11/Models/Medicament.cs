@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace apbd19_cw11.Models;
 
+[PrimaryKey(nameof(IdMedicament))]
 public class Medicament
 {
     public int IdMedicament { get; set; }

@@ -9,8 +9,8 @@ public class Prescription
 {
     public int IdPrescription { get; set; }
     
-    public DateTime Date { get; set; }
-    public DateTime DueDate { get; set; }
+    public DateOnly Date { get; set; }
+    public DateOnly DueDate { get; set; }
     
     [ForeignKey(nameof(Patient))]
     public int IdPatient { get; set; }
@@ -18,4 +18,6 @@ public class Prescription
     public int IdDoctor { get; set; }
     public Doctor Doctor { get; set; }
     public Patient Patient { get; set; }
+    
+    public ICollection<PrescriptionMedicament> PrescriptionMedicament { get; set; }
 }

@@ -17,7 +17,7 @@ public class Program
         // Konfiguracja kontekstu bazy danych
         // ConnectionString jest pobierany z appsettings.json, oczywiście należy go tam też ustawić
         builder.Services.AddDbContext<DatabaseContext>(options => 
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
         );
 
         // Wstrzykiwanie zależności

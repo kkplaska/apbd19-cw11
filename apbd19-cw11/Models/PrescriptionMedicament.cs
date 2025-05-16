@@ -1,15 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace apbd19_cw11.Models;
 
-[PrimaryKey(nameof(IdPrescription))]
+[PrimaryKey(nameof(IdMedicament),nameof(IdPrescription))]
 [Table("Prescription_Medicament")]
 public class PrescriptionMedicament
 {
-
-    public int Dose { get; set; }
+    public int? Dose { get; set; }
     
     [MaxLength(100)]
     public string Details { get; set; }
@@ -21,5 +22,4 @@ public class PrescriptionMedicament
     
     public Medicament Medicament { get; set; }
     public Prescription Prescription { get; set; }
-    
 }
