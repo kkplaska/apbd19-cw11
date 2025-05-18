@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace apbd19_cw11.Models;
 
-[PrimaryKey(nameof(IdPrescription))]
-[Table("Prescription")]
 public class Prescription
 {
     [Key]
@@ -18,8 +16,8 @@ public class Prescription
     public int IdPatient { get; set; }
 
     [ForeignKey(nameof(IdPatient))]
-    public Patient Patient { get; set; }
+    public Patient Patient { get; set; } = null!;
     [ForeignKey(nameof(IdDoctor))]
-    public Doctor Doctor { get; set; }
-    public ICollection<PrescriptionMedicament> PrescriptionMedicament { get; set; }
+    public Doctor Doctor { get; set; } = null!;
+    public ICollection<PrescriptionMedicament> PrescriptionMedicament { get; set; } = new HashSet<PrescriptionMedicament>();
 }

@@ -50,7 +50,7 @@ public class DbService : IDbService
     }
 
     
-    public async Task AddPrescription(PrescriptionDto prescriptionDto)
+    public async Task AddPrescription(PrescriptionDto prescriptionDto, int doctorId)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -66,62 +66,46 @@ public class DbService : IDbService
             }
     
             // Sprawdzanie leków 
-            var medicamentIds = prescriptionDto.Medicaments.Select(m => m.IdMedicament);
-            var existingMedicaments = await _context.Medicaments
-                .Where(m => medicamentIds.Contains(m.IdMedicament))
-                .ToListAsync();
-            
-            if (existingMedicaments.Count != medicamentIds.Count())
-            {
-                throw new NotFoundException("Some medicaments not found");
-            }
+            var medicamentIds = prescriptionDto.Medicaments.Select(m => m.IdMedicament).ToList();
+            await DoesMedicamentsExist(medicamentIds);
     
-            // Sprawdzanie pacjenta w bazie danych
-            // var patient = await _context.Patients.FindAsync(prescriptionDto.Patient.IdPatient);
-            var patient = new Patient()
+            var patient = await FindPatient(prescriptionDto.Patient.IdPatient);
+            
+            if (patient == null)
             {
+                patient = new Patient()
+                {
+                    FirstName = prescriptionDto.Patient.FirstName,
+                    LastName = prescriptionDto.Patient.LastName,
+                    BirthDate = prescriptionDto.Patient.BirthDate
+                };
+                patient.IdPatient = await AddNewPatient(patient);
+            }
+
+            var doctor = await FindDoctor(doctorId);
+            if (doctor == null)
+            {
+                throw new NotFoundException("Doctor not found");
+            }
+            
+            var prescription = new Prescription()
+            {
+                Date = prescriptionDto.Date,
+                DueDate = prescriptionDto.DueDate,
                 IdPatient = prescriptionDto.Patient.IdPatient,
-                FirstName = prescriptionDto.Patient.FirstName,
-                LastName = prescriptionDto.Patient.LastName,
-                BirthDate = prescriptionDto.Patient.BirthDate
+                IdDoctor = doctor.IdDoctor,
             };
+            prescription.IdPrescription = await AddNewPrescription(prescription);
             
-            // // Dodawanie pacjenta
-            // if (patient == null)
-            // {
-            //     patient = new Patient()
-            //     {
-            //         IdPatient = prescriptionDto.Patient.IdPatient,
-            //         FirstName = prescriptionDto.Patient.FirstName,
-            //         LastName = prescriptionDto.Patient.LastName,
-            //         BirthDate = prescriptionDto.Patient.BirthDate
-            //     };
-            // }
-    
-            // var prescription = new Prescription()
-            // {
-            //     Date = prescriptionDto.Date,
-            //     DueDate = prescriptionDto.DueDate,
-            //     IdPatient = patient.IdPatient
-            // };
-            //
-            // var prescriptionMedicaments = prescriptionDto.Medicaments.Select(a => new PrescriptionMedicament()
-            // {
-            //     IdMedicament = a.IdMedicament,
-            //     IdPrescription = prescription.IdPrescription,
-            //     Dose = a.Dose,
-            //     Details = a.Description
-            // }).ToList();
-    
-            await _context.Patients.AddAsync(patient);
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var prescriptionMedicaments = prescriptionDto.Medicaments.Select(a => new PrescriptionMedicament()
             {
-                // await _context.Prescriptions.AddAsync(prescription);
-                // await _context.PrescriptionMedicaments.AddRangeAsync(prescriptionMedicaments);
-        
-                scope.Complete();
-            }
+                IdMedicament = a.IdMedicament,
+                IdPrescription = prescription.IdPrescription,
+                Dose = a.Dose,
+                Details = a.Description
+            }).ToList();
             
+            await AddPrescriptionMedicaments(prescriptionMedicaments);
             await _context.SaveChangesAsync();
         }
         catch
@@ -130,38 +114,44 @@ public class DbService : IDbService
             throw;
         }
     }
-    
 
-    // public async Task AddPrescription(PrescriptionDto prescriptionDto)
-    // {
-    //     var patient = await _context.Patients.FindAsync(prescriptionDto.Patient.IdPatient);
-    //
-    //     if (patient == null)
-    //     {
-    //         // Add new patient
-    //         patient = new Patient
-    //         {
-    //             IdPatient = prescriptionDto.Patient.IdPatient,
-    //             FirstName = prescriptionDto.Patient.FirstName,
-    //             LastName = prescriptionDto.Patient.LastName,
-    //             BirthDate = prescriptionDto.Patient.BirthDate
-    //         };
-    //         _context.Patients.Add(patient);
-    //     }
-    //
-    //     // NOTE: You may hardcode or get the doctor ID from the request/user
-    //     int doctorId = 1;
-    //
-    //     var prescription = new Prescription
-    //     {
-    //         Date = prescriptionDto.Date,
-    //         DueDate = prescriptionDto.DueDate,
-    //         IdDoctor = doctorId,
-    //         IdPatient = prescriptionDto.Patient.IdPatient
-    //     };
-    //
-    //     _context.Prescriptions.Add(prescription);
-    //     await _context.SaveChangesAsync();
-    // }
-    
+    public async Task DoesMedicamentsExist(List<int> medicamentIds)
+    {
+        var existingMedicaments = await _context.Medicaments
+            .Where(m => medicamentIds.Contains(m.IdMedicament))
+            .ToListAsync();
+        if (existingMedicaments.Count != medicamentIds.Count)
+        {
+            throw new NotFoundException("Some medicaments not found");
+        }
+    }
+
+    public async Task<Patient?> FindPatient(int IdPatient)
+    {
+        return await _context.Patients.Where(e => e.IdPatient == IdPatient).FirstOrDefaultAsync();
+    }
+    public async Task<Doctor?> FindDoctor(int IdDoctor)
+    {
+        return await _context.Doctors.Where(e => e.IdDoctor == IdDoctor).FirstOrDefaultAsync();
+    }
+
+    public async Task<int> AddNewPatient(Patient patient)
+    {
+        var entityEntry = await _context.Patients.AddAsync(patient);
+        await _context.SaveChangesAsync();
+        return entityEntry.Entity.IdPatient;
+    }
+
+    public async Task<int> AddNewPrescription(Prescription prescription)
+    {
+        var entityEntry = await _context.Prescriptions.AddAsync(prescription);
+        await _context.SaveChangesAsync();
+        return entityEntry.Entity.IdPrescription;
+    }
+
+    public async Task AddPrescriptionMedicaments(List<PrescriptionMedicament> medicaments)
+    {
+        await _context.PrescriptionMedicaments.AddRangeAsync(medicaments);
+        await _context.SaveChangesAsync();
+    }
 }

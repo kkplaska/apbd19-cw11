@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace apbd19_cw11.Models;
 
-[PrimaryKey(nameof(IdMedicament))]
 public class Medicament
 {
     [Key]
@@ -14,4 +13,5 @@ public class Medicament
     public string Description { get; set; }
     [MaxLength(100)]
     public string Type { get; set; }
+    public ICollection<PrescriptionMedicament> PrescriptionMedicaments { get; set; } = new HashSet<PrescriptionMedicament>();
 }
