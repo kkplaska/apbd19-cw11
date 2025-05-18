@@ -6,7 +6,6 @@ namespace apbd19_cw11.Services;
 public interface IDbService
 {
     Task<PatientWithDescriptionsDto> GetPatientDetails(int patientId);
-    Task AddPrescription(PrescriptionDto prescriptionDto, int doctorId);
     
     Task DoesMedicamentsExist(List<int> medicamentIds);
     Task<Patient?> FindPatient(int IdPatient);

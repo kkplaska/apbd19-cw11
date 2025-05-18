@@ -83,7 +83,7 @@ namespace apbd19_cw11.Controllers
             {
                 Date = prescriptionDto.Date,
                 DueDate = prescriptionDto.DueDate,
-                IdPatient = prescriptionDto.Patient.IdPatient,
+                IdPatient = patient.IdPatient,
                 IdDoctor = doctor.IdDoctor,
             };
             prescription.IdPrescription = await _dbService.AddNewPrescription(prescription);
