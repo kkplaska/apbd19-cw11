@@ -1,8 +1,6 @@
 using apbd19_cw11.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using apbd19_cw11.Data;
+using apbd19_cw11.DTOs;
 using apbd19_cw11.Exceptions;
 
 namespace apbd19_cw11.Controllers
@@ -33,6 +31,28 @@ namespace apbd19_cw11.Controllers
             {
                 Console.WriteLine(e);
                 throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPrescription(PrescriptionDto prescription)
+        {
+            try
+            {
+                await _dbService.AddPrescription(prescription);
+                return Created();
+            }
+            catch (PrescriptionExpiredException e)
+            {
+                return BadRequest(e);
+            }
+            catch (TooMuchMedicamentsException e)
+            {
+                return BadRequest(e);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
             }
         }
     }

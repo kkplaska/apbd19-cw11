@@ -6,13 +6,12 @@ namespace apbd19_cw11.Models;
 [PrimaryKey(nameof(IdDoctor))]
 public class Doctor
 {
-    [Required]
+    [Key]
     public int IdDoctor { get; set; }
     [MaxLength(100)]
     public string FirstName { get; set; }
     [MaxLength(100)]
     public string LastName { get; set; }
-
     [MaxLength(100)]
     public string Email { get; set; }
     

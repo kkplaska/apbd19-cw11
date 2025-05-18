@@ -8,7 +8,7 @@ public class DatabaseContext : DbContext
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Medicament> Medicaments { get; set; }
     public DbSet<Patient> Patients { get; set; }
-    public DbSet<Prescription> BookAuthors { get; set; }
+    public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<PrescriptionMedicament> PrescriptionMedicaments { get; set; }
     
     protected DatabaseContext()
@@ -21,7 +21,9 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-       modelBuilder.Entity<Doctor>().HasData(new List<Doctor>()
+        base.OnModelCreating(modelBuilder); 
+        
+        modelBuilder.Entity<Doctor>().HasData(new List<Doctor>()
         {
             new Doctor() { IdDoctor = 1, FirstName = "Anna", LastName = "Nowak", Email = "anna.nowak@clinic.pl" },
             new Doctor() { IdDoctor = 2, FirstName = "Piotr", LastName = "Kowalski", Email = "piotr.kowalski@clinic.pl" },

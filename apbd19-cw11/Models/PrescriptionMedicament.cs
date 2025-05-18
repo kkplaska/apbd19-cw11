@@ -15,11 +15,11 @@ public class PrescriptionMedicament
     [MaxLength(100)]
     public string Details { get; set; }
     
-    [ForeignKey(nameof(Medicament))]
     public int IdMedicament { get; set; }
-    [ForeignKey(nameof(Prescription))]
     public int IdPrescription { get; set; }
-    
-    public Medicament Medicament { get; set; }
-    public Prescription Prescription { get; set; }
+
+    [ForeignKey(nameof(IdMedicament))] 
+    public Medicament Medicament { get; set; } = null!;
+    [ForeignKey(nameof(IdPrescription))] 
+    public Prescription Prescription { get; set; } = null!;
 }

@@ -12,6 +12,7 @@ public class Program
 
         // Add services to the container.
 
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
 
         // Konfiguracja kontekstu bazy danych
@@ -25,9 +26,8 @@ public class Program
         builder.Services.AddScoped<IDbService, DbService>();
 
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        app.UseAuthorization();
+        
+        // app.UseAuthorization();
 
         app.MapControllers();
 

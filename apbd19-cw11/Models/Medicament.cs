@@ -6,6 +6,7 @@ namespace apbd19_cw11.Models;
 [PrimaryKey(nameof(IdMedicament))]
 public class Medicament
 {
+    [Key]
     public int IdMedicament { get; set; }
     [MaxLength(100)]
     public string Name { get; set; }
